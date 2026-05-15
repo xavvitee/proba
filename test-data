@@ -17,7 +17,7 @@ VALUES
 
 
 -- Додамо телефон лише одному користувачу, щоб перевірити, чи працює поле
-UPDATE users
+UPDATE customer
 SET phone = '+1234567890'
 WHERE email = 'chase@example.com';
 
@@ -30,31 +30,27 @@ WHERE email IN ('chase@example.com', 'mett@example.com');
 
 -- Перевірка constraint:
 -- Має виникнути помилка через неправильний формат
--- UPDATE users SET phone = 'not-a-number' WHERE user_id = 1;
+-- UPDATE customer SET phone = 'not-a-number' WHERE customer_id = 1;
 
 
 -- Додаємо відгук
 INSERT INTO review (rating, comment, film_id, customer_id)
 VALUES 
 (9, '^.^! Great movie.',
-        (SELECT film_id FROM film WHERE title = 'Inception' LIMIT 1),
-        (SELECT customer_id FROM customer WHERE email = 'chase@example.com' LIMIT 1));
+    (SELECT film_id FROM film WHERE title = 'Inception' LIMIT 1),
+    (SELECT customer_id FROM customer WHERE email = 'chase@example.com' LIMIT 1));
 
 -- Виводимо дані з JOIN задля перевірки цілісності зв'язків
-SELECT c.name  AS customer_name,
+SELECT c.first_name  AS customer_name,
        c.phone AS customer_phone,
        f.title AS film_title,
        r.rating,
        r.comment,
        r.created_at
 FROM review r
-         JOIN customer c ON r.customer_id = c.customer_id
-         JOIN film f ON r.film_id = f.film_id
-WHERE f.title = 'Inception';
-
-
--- Ми видалили колонки paid_at та user_subscription_id
--- Цей запит має успішно виконатися і показати таблицю без цих колонок
+     JOIN customer c ON r.customer_id = c.customer_id
+     JOIN film f ON r.film_id = f.film_id
+WHERE f.title = 'Inception'; 
 SELECT *
 FROM payment
 LIMIT 5;
