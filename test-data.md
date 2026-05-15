@@ -1,0 +1,60 @@
+-- Тестові дані
+INSERT INTO studio (name, country, founded_date)
+VALUES 
+    ('Warner Bros.', 'USA', '1923-04-04'),
+    ('Studio Ghibli', 'Japan', '1985-06-15');
+
+INSERT INTO customer (first_name, last_name, email, password, registration_date, birth_date, is_deleted)
+VALUES
+    ('Chase', 'Miller', 'chase@example.com', 'p123', '2024-03-12', '1998-07-15', false),
+    ('Mett', 'Reinor', 'mett@example.com', 'p343', '2024-05-01', '2000-11-20', false);
+
+---
+INSERT INTO film (title, release_year, duration, age_restriction, studio_id)
+VALUES
+    ('Inception', 2010, 148, 13, (SELECT studio_id FROM studio WHERE name = 'Warner Bros.' LIMIT 1)),
+    ('Spirited Away', 2001, 125, 0, (SELECT studio_id FROM studio WHERE name = 'Studio Ghibli' LIMIT 1));
+
+
+-- Додамо телефон лише одному користувачу, щоб перевірити, чи працює поле
+UPDATE users
+SET phone = '+1234567890'
+WHERE email = 'chase@example.com';
+
+-- Перевірка:
+-- Користувач з телефоном має відобразити номер
+-- Інші користувачі (Mett) мають мати NULL у полі phone
+SELECT customer_id, first_name, email, phone
+FROM customer
+WHERE email IN ('chase@example.com', 'mett@example.com');
+
+-- Перевірка constraint:
+-- Має виникнути помилка через неправильний формат
+-- UPDATE users SET phone = 'not-a-number' WHERE user_id = 1;
+
+
+-- Додаємо відгук
+INSERT INTO review (rating, comment, film_id, customer_id)
+VALUES 
+(9, '^.^! Great movie.',
+        (SELECT film_id FROM film WHERE title = 'Inception' LIMIT 1),
+        (SELECT customer_id FROM customer WHERE email = 'chase@example.com' LIMIT 1));
+
+-- Виводимо дані з JOIN задля перевірки цілісності зв'язків
+SELECT c.name  AS customer_name,
+       c.phone AS customer_phone,
+       f.title AS film_title,
+       r.rating,
+       r.comment,
+       r.created_at
+FROM review r
+         JOIN customer c ON r.customer_id = c.customer_id
+         JOIN film f ON r.film_id = f.film_id
+WHERE f.title = 'Inception';
+
+
+-- Ми видалили колонки paid_at та user_subscription_id
+-- Цей запит має успішно виконатися і показати таблицю без цих колонок
+SELECT *
+FROM payment
+LIMIT 5;
