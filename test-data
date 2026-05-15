@@ -51,6 +51,17 @@ FROM review r
      JOIN customer c ON r.customer_id = c.customer_id
      JOIN film f ON r.film_id = f.film_id
 WHERE f.title = 'Inception'; 
+
+-- Перевірка всіх фільмів та студій
+SELECT 
+    f.title,
+    s.name AS studio_name,
+    f.release_year
+FROM film f
+JOIN studio s 
+    ON f.studio_id = s.studio_id;
+
+-- Перевірка таблиці payment
 SELECT *
 FROM payment
 LIMIT 5;
