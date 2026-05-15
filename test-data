@@ -9,12 +9,11 @@ VALUES
     ('Chase', 'Miller', 'chase@example.com', 'p123', '2024-03-12', '1998-07-15', false),
     ('Mett', 'Reinor', 'mett@example.com', 'p343', '2024-05-01', '2000-11-20', false);
 
----
+-- Тестові дані для фільмів
 INSERT INTO film (title, release_year, duration, age_restriction, studio_id)
 VALUES
     ('Inception', 2010, 148, 13, (SELECT studio_id FROM studio WHERE name = 'Warner Bros.' LIMIT 1)),
     ('Spirited Away', 2001, 125, 0, (SELECT studio_id FROM studio WHERE name = 'Studio Ghibli' LIMIT 1));
-
 
 -- Додамо телефон лише одному користувачу, щоб перевірити, чи працює поле
 UPDATE customer
@@ -32,16 +31,15 @@ WHERE email IN ('chase@example.com', 'mett@example.com');
 -- Має виникнути помилка через неправильний формат
 -- UPDATE customer SET phone = 'not-a-number' WHERE customer_id = 1;
 
-
 -- Додаємо відгук
 INSERT INTO review (rating, comment, film_id, customer_id)
 VALUES 
-(9, '^.^! Great movie.',
+    (9, '^.^! Great movie.',
     (SELECT film_id FROM film WHERE title = 'Inception' LIMIT 1),
     (SELECT customer_id FROM customer WHERE email = 'chase@example.com' LIMIT 1));
 
 -- Виводимо дані з JOIN задля перевірки цілісності зв'язків
-SELECT c.first_name  AS customer_name,
+SELECT c.first_name AS customer_name,
        c.phone AS customer_phone,
        f.title AS film_title,
        r.rating,
@@ -50,7 +48,12 @@ SELECT c.first_name  AS customer_name,
 FROM review r
      JOIN customer c ON r.customer_id = c.customer_id
      JOIN film f ON r.film_id = f.film_id
-WHERE f.title = 'Inception'; 
+WHERE f.title = 'Inception';
+
+-- Перевірка таблиці payment
+SELECT *
+FROM payment
+LIMIT 5;
 
 -- Перевірка всіх фільмів та студій
 SELECT 
@@ -58,10 +61,4 @@ SELECT
     s.name AS studio_name,
     f.release_year
 FROM film f
-JOIN studio s 
-    ON f.studio_id = s.studio_id;
-
--- Перевірка таблиці payment
-SELECT *
-FROM payment
-LIMIT 5;
+JOIN studio s ON f.studio_id = s.studio_id;
